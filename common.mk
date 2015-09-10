@@ -119,7 +119,8 @@ PRODUCT_COPY_FILES += \
 # Misc Packages
 PRODUCT_PACKAGES += \
     com.android.future.usb.accessory \
-    SamsungServiceMode
+    SamsungServiceMode \
+    Camera2
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
