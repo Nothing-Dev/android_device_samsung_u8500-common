@@ -50,12 +50,18 @@ PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/configs/media_codecs.xml:system/etc/media_codecs.xml \
     $(COMMON_PATH)/configs/media_profiles.xml:system/etc/media_profiles.xml
 
+# Camera API 1.0
+PRODUCT_PROPERTY_OVERRIDES += \
+    camera2.portability.force_api=1
+
 # Wi-Fi
 PRODUCT_PACKAGES += \
     libnetcmdiface \
     wpa_supplicant \
+    wpa_supplicant.conf \
     libwpa_client \
     hostapd \
+    hostapd_default.conf \
     dhcpcd.conf
     
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -96,13 +102,11 @@ PRODUCT_PACKAGES += \
     libaudioutils \
     libtinyalsa
 
+PRODUCT_PROPERTY_OVERRIDES += \
+    audio.offload.disable=1
+
 # U8500 Hardware
 $(call inherit-product, hardware/u8500/u8500.mk)
-
-# USB
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-    persist.sys.usb.config=mtp,adb \
-    persist.service.adb.enable=1
 
 # Prebuilt Charger
 PRODUCT_COPY_FILES += \
@@ -118,9 +122,7 @@ PRODUCT_COPY_FILES += \
 
 # Misc Packages
 PRODUCT_PACKAGES += \
-    com.android.future.usb.accessory \
-    SamsungServiceMode \
-    Camera2
+    SamsungServiceMode
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
@@ -167,8 +169,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml \
-    packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
+    frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml
 
 # Live Wallpapers
 PRODUCT_PACKAGES += \
@@ -207,8 +208,26 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.hwui.texture_cache_size=8
 
 # ART
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    dalvik.vm.dex2oat-Xms=64m \
+    dalvik.vm.dex2oat-Xmx=512m \
+    dalvik.vm.image-dex2oat-Xms=64m \
+    dalvik.vm.image-dex2oat-Xmx=64m \
+    ro.dalvik.vm.native.bridge=0 \
+    dalvik.vm.image-dex2oat-filter=speed \
+    dalvik.vm.dex2oat-filter=interpret-only
+
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     dalvik.vm.dex2oat-flags=--no-watch-dog 
+
+# Root and USB
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    ro.adb.secure=1 \
+    ro.secure=1 \
+    ro.allow.mock.location=0 \
+    ro.debuggable=1 \
+    ro.zygote=zygote32 \
+    persist.sys.usb.config=mtp
 
 # KSM
 PRODUCT_PROPERTY_OVERRIDES += \
