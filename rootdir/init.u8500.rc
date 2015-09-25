@@ -25,7 +25,6 @@ on init
 
     # Setup the global environment
     export LD_LIBRARY_PATH /vendor/lib:/system/lib:/system/lib/ste_omxcomponents
-    export LD_PRELOAD /system/lib/libjhead.so
     export OMX_STE_ENS_COMPONENTS_DIR /system/lib/ste_omxcomponents/
     export OMX_BELLAGIO_LOADER_REGISTRY /system/etc/omxloaders
     export OMX_STE_CSCALL_COMPONENTS_DIR /system/lib/ste_omxcomponents/
@@ -376,6 +375,12 @@ service ta_load /system/bin/ta_loader
 service at_distributor /system/bin/at_distributor
     user root
     group radio log
+
+# libhead symlink script
+service camera_symlink /system/bin/camera_symlink
+    class main
+    user root
+    oneshot
 
 service usbid_init /system/bin/usbid_init.sh
     class main
