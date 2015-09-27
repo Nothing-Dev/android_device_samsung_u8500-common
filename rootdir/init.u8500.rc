@@ -162,10 +162,6 @@ on post-fs
     write /sys/class/power_supply/battery/batt_reinit_capacity 1
     insmod /system/lib/modules/bthid.ko
 
-    # Loading exFAT-fs drivers
-    insmod /system/lib/modules/exfat_core.ko
-    insmod /system/lib/modules/exfat_fs.ko
-
 on post-fs-data
 
     # EFS wifi permissions
@@ -229,6 +225,10 @@ on post-fs-data
     # won't work.
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
+
+    # Enable cpu notify on migrate for CM PowerHAL
+    chown system system /dev/cpuctl/cpu.notify_on_migrate
+    chmod 0664 /dev/cpuctl/cpu.notify_on_migrate
 
 on early-boot
 
