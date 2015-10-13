@@ -197,7 +197,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.heapsize=128m \
     dalvik.vm.heaptargetutilization=0.75 \
     dalvik.vm.heapminfree=1m \
-    dalvik.vm.heapmaxfree=4m
+    dalvik.vm.heapmaxfree=4m \
+    persist.sys.dalvik.multithread=true
 
 # HWUI tweaks
 PRODUCT_PROPERTY_OVERRIDES += \
