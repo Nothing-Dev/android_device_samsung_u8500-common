@@ -112,12 +112,14 @@ typedef uint32_t audio_flags_mask_t;
  * in frameworks/base/media/java/android/media/AudioAttributes.java
  */
 enum {
-    AUDIO_FLAG_AUDIBILITY_ENFORCED = 0x1,
-    AUDIO_FLAG_SECURE              = 0x2,
-    AUDIO_FLAG_SCO                 = 0x4,
-    AUDIO_FLAG_BEACON              = 0x8,
-    AUDIO_FLAG_HW_AV_SYNC          = 0x10,
-    AUDIO_FLAG_HW_HOTWORD          = 0x20,
+    AUDIO_FLAG_AUDIBILITY_ENFORCED        = 0x1,
+    AUDIO_FLAG_SECURE                     = 0x2,
+    AUDIO_FLAG_SCO                        = 0x4,
+    AUDIO_FLAG_BEACON                     = 0x8,
+    AUDIO_FLAG_HW_AV_SYNC                 = 0x10,
+    AUDIO_FLAG_HW_HOTWORD                 = 0x20,
+    AUDIO_FLAG_BYPASS_INTERRUPTION_POLICY = 0x40,
+    AUDIO_FLAG_BYPASS_MUTE                = 0x80,
 };
 
 /* Do not change these values without updating their counterparts
@@ -194,7 +196,7 @@ typedef enum {
     AUDIO_FORMAT_PCM_SUB_16_BIT          = 0x1, /* DO NOT CHANGE - PCM signed 16 bits */
     AUDIO_FORMAT_PCM_SUB_8_BIT           = 0x2, /* DO NOT CHANGE - PCM unsigned 8 bits */
     AUDIO_FORMAT_PCM_SUB_32_BIT          = 0x3, /* PCM signed .31 fixed point */
-    AUDIO_FORMAT_PCM_SUB_8_24_BIT        = 0x4, /* PCM signed 7.24 fixed point */
+    AUDIO_FORMAT_PCM_SUB_8_24_BIT        = 0x4, /* PCM signed 8.23 fixed point */
     AUDIO_FORMAT_PCM_SUB_FLOAT           = 0x5, /* PCM single-precision floating point */
     AUDIO_FORMAT_PCM_SUB_24_BIT_PACKED   = 0x6, /* PCM signed .23 fixed point packed in 3 bytes */
 } audio_format_pcm_sub_fmt_t;
@@ -234,6 +236,7 @@ typedef enum {
     AUDIO_FORMAT_VORBIS_SUB_NONE         = 0x0,
 } audio_format_vorbis_sub_fmt_t;
 
+
 /* Audio format consists of a main format field (upper 8 bits) and a sub format
  * field (lower 24 bits).
  *
@@ -257,6 +260,8 @@ typedef enum {
     AUDIO_FORMAT_OPUS                = 0x08000000UL,
     AUDIO_FORMAT_AC3                 = 0x09000000UL,
     AUDIO_FORMAT_E_AC3               = 0x0A000000UL,
+    AUDIO_FORMAT_DTS                 = 0x0B000000UL,
+    AUDIO_FORMAT_DTS_HD              = 0x0C000000UL,
     AUDIO_FORMAT_MAIN_MASK           = 0xFF000000UL,
     AUDIO_FORMAT_SUB_MASK            = 0x00FFFFFFUL,
 
@@ -473,6 +478,22 @@ typedef enum {
     // 3 is reserved for future use
 } audio_channel_representation_t;
 
+/* The channel index masks defined here are the canonical masks for 1 to 8 channel
+ * endpoints and apply to both source and sink.
+ */
+enum {
+    AUDIO_CHANNEL_INDEX_HDR  = AUDIO_CHANNEL_REPRESENTATION_INDEX << AUDIO_CHANNEL_COUNT_MAX,
+    AUDIO_CHANNEL_INDEX_MASK_1 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 1) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_2 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 2) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_3 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 3) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_4 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 4) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_5 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 5) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_6 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 6) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_7 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 7) - 1,
+    AUDIO_CHANNEL_INDEX_MASK_8 =  AUDIO_CHANNEL_INDEX_HDR | (1 << 8) - 1,
+    // FIXME FCC_8
+};
+
 /* The return value is undefined if the channel mask is invalid. */
 static inline uint32_t audio_channel_mask_get_bits(audio_channel_mask_t channel)
 {
@@ -598,6 +619,7 @@ enum {
     AUDIO_DEVICE_OUT_AUX_LINE                  = 0x200000,
     /* limited-output speaker device for acoustic safety */
     AUDIO_DEVICE_OUT_SPEAKER_SAFE              = 0x400000,
+    AUDIO_DEVICE_OUT_IP                        = 0x800000,
     AUDIO_DEVICE_OUT_DEFAULT                   = AUDIO_DEVICE_BIT_DEFAULT,
     AUDIO_DEVICE_OUT_ALL      = (AUDIO_DEVICE_OUT_EARPIECE |
                                  AUDIO_DEVICE_OUT_SPEAKER |
@@ -622,6 +644,7 @@ enum {
                                  AUDIO_DEVICE_OUT_FM |
                                  AUDIO_DEVICE_OUT_AUX_LINE |
                                  AUDIO_DEVICE_OUT_SPEAKER_SAFE |
+                                 AUDIO_DEVICE_OUT_IP |
                                  AUDIO_DEVICE_OUT_DEFAULT),
     AUDIO_DEVICE_OUT_ALL_A2DP = (AUDIO_DEVICE_OUT_BLUETOOTH_A2DP |
                                  AUDIO_DEVICE_OUT_BLUETOOTH_A2DP_HEADPHONES |
@@ -631,7 +654,6 @@ enum {
                                  AUDIO_DEVICE_OUT_BLUETOOTH_SCO_CARKIT),
     AUDIO_DEVICE_OUT_ALL_USB  = (AUDIO_DEVICE_OUT_USB_ACCESSORY |
                                  AUDIO_DEVICE_OUT_USB_DEVICE),
-
     /* input devices */
 #if defined(ICS_AUDIO_BLOB) || defined(MR0_AUDIO_BLOB)
     AUDIO_DEVICE_IN_COMMUNICATION         = AUDIO_DEVICE_BIT_IN * 0x1,
@@ -681,7 +703,7 @@ enum {
     AUDIO_DEVICE_IN_SPDIF                 = AUDIO_DEVICE_BIT_IN | 0x10000,
     AUDIO_DEVICE_IN_BLUETOOTH_A2DP        = AUDIO_DEVICE_BIT_IN | 0x20000,
     AUDIO_DEVICE_IN_LOOPBACK              = AUDIO_DEVICE_BIT_IN | 0x40000,
-
+    AUDIO_DEVICE_IN_IP                    = AUDIO_DEVICE_BIT_IN | 0x80000,
 #if defined(ICS_AUDIO_BLOB) || defined(MR0_AUDIO_BLOB)
     AUDIO_DEVICE_IN_DEFAULT               = AUDIO_DEVICE_IN_BUILTIN_MIC,
 #else
@@ -707,6 +729,7 @@ enum {
                                AUDIO_DEVICE_IN_SPDIF |
                                AUDIO_DEVICE_IN_BLUETOOTH_A2DP |
                                AUDIO_DEVICE_IN_LOOPBACK |
+                               AUDIO_DEVICE_IN_IP |
                                AUDIO_DEVICE_IN_DEFAULT),
     AUDIO_DEVICE_IN_ALL_SCO = AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET,
     AUDIO_DEVICE_IN_ALL_USB  = (AUDIO_DEVICE_IN_USB_ACCESSORY |
@@ -739,7 +762,15 @@ typedef enum {
     AUDIO_OUTPUT_FLAG_COMPRESS_OFFLOAD = 0x10,  // offload playback of compressed
                                                 // streams to hardware codec
     AUDIO_OUTPUT_FLAG_NON_BLOCKING = 0x20, // use non-blocking write
-    AUDIO_OUTPUT_FLAG_HW_AV_SYNC = 0x40 // output uses a hardware A/V synchronization source
+    AUDIO_OUTPUT_FLAG_HW_AV_SYNC = 0x40,   // output uses a hardware A/V synchronization source
+    AUDIO_OUTPUT_FLAG_TTS = 0x80,          // output for streams transmitted through speaker
+                                           // at a sample rate high enough to accommodate
+                                           // lower-range ultrasonic playback
+    AUDIO_OUTPUT_FLAG_RAW = 0x100,         // minimize signal processing
+    AUDIO_OUTPUT_FLAG_SYNC = 0x200,        // synchronize I/O streams
+
+    AUDIO_OUTPUT_FLAG_IEC958_NONAUDIO = 0x400, // Audio stream contains compressed audio in
+                                               // SPDIF data bursts, not PCM.
 } audio_output_flags_t;
 
 /* The audio input flags are analogous to audio output flags.
@@ -751,6 +782,9 @@ typedef enum {
     AUDIO_INPUT_FLAG_NONE       = 0x0,  // no attributes
     AUDIO_INPUT_FLAG_FAST       = 0x1,  // prefer an input that supports "fast tracks"
     AUDIO_INPUT_FLAG_HW_HOTWORD = 0x2,  // prefer an input that captures from hw hotword source
+    AUDIO_INPUT_FLAG_RAW        = 0x4,  // minimize signal processing
+    AUDIO_INPUT_FLAG_SYNC       = 0x8,  // synchronize I/O streams
+
 } audio_input_flags_t;
 
 /* Additional information about compressed streams offloaded to
@@ -865,6 +899,8 @@ struct audio_gain_config  {
     audio_gain_mode_t    mode;              /* mode requested for this command */
     audio_channel_mask_t channel_mask;      /* channels which gain value follows.
                                                N/A in joint mode */
+
+    // note this "8" is not FCC_8, so it won't need to be changed for > 8 channels
     int                  values[sizeof(audio_channel_mask_t) * 8]; /* gain values in millibels
                                                for each channel ordered from LSb to MSb in
                                                channel mask. The number of values is 1 in joint
@@ -903,6 +939,8 @@ typedef enum {
 typedef int audio_port_handle_t;
 #define AUDIO_PORT_HANDLE_NONE 0
 
+/* the maximum length for the human-readable device name */
+#define AUDIO_PORT_MAX_NAME_LEN 128
 
 /* maximum audio device address length */
 #define AUDIO_DEVICE_MAX_ADDRESS_LEN 32
@@ -997,11 +1035,11 @@ struct audio_port_session_ext {
     audio_session_t   session; /* audio session */
 };
 
-
 struct audio_port {
     audio_port_handle_t      id;                /* port unique ID */
     audio_port_role_t        role;              /* sink or source */
     audio_port_type_t        type;              /* device, mix ... */
+    char                     name[AUDIO_PORT_MAX_NAME_LEN];
     unsigned int             num_sample_rates;  /* number of sampling rates in following array */
     unsigned int             sample_rates[AUDIO_PORT_MAX_SAMPLING_RATES];
     unsigned int             num_channel_masks; /* number of channel masks in following array */
@@ -1228,6 +1266,25 @@ static inline uint32_t audio_channel_count_from_out_mask(audio_channel_mask_t ch
     }
 }
 
+/* Derive a channel mask for index assignment from a channel count.
+ * Returns the matching channel mask,
+ * or AUDIO_CHANNEL_NONE if the channel count is zero,
+ * or AUDIO_CHANNEL_INVALID if the channel count exceeds AUDIO_CHANNEL_COUNT_MAX.
+ */
+static inline audio_channel_mask_t audio_channel_mask_for_index_assignment_from_count(
+        uint32_t channel_count)
+{
+    if (channel_count == 0) {
+        return AUDIO_CHANNEL_NONE;
+    }
+    if (channel_count > AUDIO_CHANNEL_COUNT_MAX) {
+        return AUDIO_CHANNEL_INVALID;
+    }
+    uint32_t bits = (1 << channel_count) - 1;
+    return audio_channel_mask_from_representation_and_bits(
+            AUDIO_CHANNEL_REPRESENTATION_INDEX, bits);
+}
+
 /* Derive an output channel mask for position assignment from a channel count.
  * This is to be used when the content channel mask is unknown. The 1, 2, 4, 5, 6, 7 and 8 channel
  * cases are mapped to the standard game/home-theater layouts, but note that 4 is mapped to quad,
@@ -1268,6 +1325,7 @@ static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t ch
     case 8:
         bits = AUDIO_CHANNEL_OUT_7POINT1;
         break;
+    // FIXME FCC_8
     default:
         return AUDIO_CHANNEL_INVALID;
     }
@@ -1275,8 +1333,8 @@ static inline audio_channel_mask_t audio_channel_out_mask_from_count(uint32_t ch
             AUDIO_CHANNEL_REPRESENTATION_POSITION, bits);
 }
 
-/* Derive an input channel mask for position assignment from a channel count.
- * Currently handles only mono and stereo.
+/* Derive a default input channel mask from a channel count.
+ * Assumes a position mask for mono and stereo, or an index mask for channel counts > 2.
  * Returns the matching channel mask,
  * or AUDIO_CHANNEL_NONE if the channel count is zero,
  * or AUDIO_CHANNEL_INVALID if the channel count exceeds that of the
@@ -1294,30 +1352,19 @@ static inline audio_channel_mask_t audio_channel_in_mask_from_count(uint32_t cha
     case 2:
         bits = AUDIO_CHANNEL_IN_STEREO;
         break;
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+        // FIXME FCC_8
+        return audio_channel_mask_for_index_assignment_from_count(channel_count);
     default:
         return AUDIO_CHANNEL_INVALID;
     }
     return audio_channel_mask_from_representation_and_bits(
             AUDIO_CHANNEL_REPRESENTATION_POSITION, bits);
-}
-
-/* Derive a channel mask for index assignment from a channel count.
- * Returns the matching channel mask,
- * or AUDIO_CHANNEL_NONE if the channel count is zero,
- * or AUDIO_CHANNEL_INVALID if the channel count exceeds AUDIO_CHANNEL_COUNT_MAX.
- */
-static inline audio_channel_mask_t audio_channel_mask_for_index_assignment_from_count(
-        uint32_t channel_count)
-{
-    if (channel_count == 0) {
-        return AUDIO_CHANNEL_NONE;
-    }
-    if (channel_count > AUDIO_CHANNEL_COUNT_MAX) {
-        return AUDIO_CHANNEL_INVALID;
-    }
-    uint32_t bits = (1 << channel_count) - 1;
-    return audio_channel_mask_from_representation_and_bits(
-            AUDIO_CHANNEL_REPRESENTATION_INDEX, bits);
 }
 
 static inline bool audio_is_valid_format(audio_format_t format)
@@ -1346,6 +1393,8 @@ static inline bool audio_is_valid_format(audio_format_t format)
     case AUDIO_FORMAT_OPUS:
     case AUDIO_FORMAT_AC3:
     case AUDIO_FORMAT_E_AC3:
+    case AUDIO_FORMAT_DTS:
+    case AUDIO_FORMAT_DTS_HD:
         return true;
     default:
         return false;
@@ -1400,6 +1449,22 @@ static inline char *audio_device_address_to_parameter(audio_devices_t device, co
     return strdup(param);
 }
 
+static inline bool audio_device_is_digital(audio_devices_t device) {
+    if ((device & AUDIO_DEVICE_BIT_IN) != 0) {
+        // input
+        return (~AUDIO_DEVICE_BIT_IN & device & (AUDIO_DEVICE_IN_ALL_USB |
+                          AUDIO_DEVICE_IN_HDMI |
+                          AUDIO_DEVICE_IN_SPDIF |
+                          AUDIO_DEVICE_IN_IP)) != 0;
+    } else {
+        // output
+        return (device & (AUDIO_DEVICE_OUT_ALL_USB |
+                          AUDIO_DEVICE_OUT_HDMI |
+                          AUDIO_DEVICE_OUT_HDMI_ARC |
+                          AUDIO_DEVICE_OUT_SPDIF |
+                          AUDIO_DEVICE_OUT_IP)) != 0;
+    }
+}
 
 __END_DECLS
 
