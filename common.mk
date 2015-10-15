@@ -120,6 +120,11 @@ PRODUCT_COPY_FILES += \
     $(COMMON_PATH)/prebuilt/charger/images/battery_charge.png:root/res/images/charger/battery_charge.png \
     $(COMMON_PATH)/prebuilt/charger/images/battery_fail.png:root/res/images/charger/battery_fail.png
 
+# Prebuilt Ramdisk
+PRODUCT_COPY_FILES += \
+    $(COMMON_PATH)/prebuilt/ramdisk/ramdisk-recovery.cpio:ramdisk-recovery.cpio \
+    $(COMMON_PATH)/prebuilt/ramdisk/ramdisk.cpio:ramdisk.cpio
+
 # Misc Packages
 PRODUCT_PACKAGES += \
     SamsungServiceMode \
