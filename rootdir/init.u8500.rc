@@ -3,25 +3,9 @@ import /init.u8500.usb.rc
 
 on init
 
-    export EXTERNAL_STORAGE /storage/sdcard0
-    export SECONDARY_STORAGE /storage/sdcard1
-
-    mkdir /storage/sdcard0 0700 root root
-    mkdir /storage/sdcard1 0700 root root
-
-    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
-
-    mkdir /efs 0771 radio system
-    mkdir /modemfs 0771 system system
-    mkdir /preload 0771 system system
-    mkdir /mnt/.lfs 0755 root root
-
-    # For backwards compatibility
-    symlink /storage/sdcard0 /sdcard
-    symlink /storage/sdcard0 /mnt/sdcard
-    symlink /storage/sdcard1 /extSdCard
-    symlink /storage/sdcard1 /mnt/extSdCard
+    # Support legacy paths
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard0
 
     # Setup the global environment
     export LD_LIBRARY_PATH /vendor/lib:/system/lib:/system/lib/ste_omxcomponents
@@ -225,10 +209,6 @@ on post-fs-data
     # won't work.
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
-
-    # Enable cpu notify on migrate for CM PowerHAL
-    chown system system /dev/cpuctl/cpu.notify_on_migrate
-    chmod 0664 /dev/cpuctl/cpu.notify_on_migrate
 
 on early-boot
 
@@ -448,40 +428,8 @@ service iprenew_bt-pan /system/bin/dhcpcd -n
     disabled
     oneshot
 
-# FUSE sdcard daemon service for sdcard
-service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
-    class late_start
-    disabled
-
-service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
-    class late_start
-    disabled
-
 on property:sys.boot_completed=1
     setprop persist.sys.root_access ${persist.sys.root_access}
-
-# CM Performance Profiles
-# Powersave
-on property:sys.perf.profile=0
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor abyssplug
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor abyssplug
-
-# Balanced
-on property:sys.perf.profile=1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
-
-# High performance
-on property:sys.perf.profile=2
-    write /sys/devices/system/cpu/cpu0/online 1
-    write /sys/devices/system/cpu/cpu1/online 1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor performance
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor performance
-
-on charger
-    write /sys/class/power_supply/battery/batt_lp_charging 1
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor powersave
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor powersave
 
 service charger /sbin/healthd -c
     class charger
