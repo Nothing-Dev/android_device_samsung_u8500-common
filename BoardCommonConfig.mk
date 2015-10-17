@@ -124,20 +124,7 @@ BOARD_RECOVERY_SWIPE := true
 RECOVERY_VARIANT := twrp
 
 # SELinux
-BOARD_SEPOLICY_DIRS := \
-    $(BOARD_SEPOLICY_DIRS) \
-    device/samsung/u8500-common/sepolicy
-
-BOARD_SEPOLICY_UNION += \
-    device.te \
-    file.te \
-    rild.te \
-    drmserver.te \
-    ueventd.te \
-    domain.te \
-    file_contexts \
-    wpa_supplicant.te \
-    vold.te
+#BOARD_SEPOLICY_DIRS += device/samsung/u8500-common/sepolicy
 
 # Delete the line below when SELinux is enabled on all devices
 COMMON_GLOBAL_CFLAGS += -DRECOVERY_CANT_USE_CONFIG_EXT4_FS_XATTR
