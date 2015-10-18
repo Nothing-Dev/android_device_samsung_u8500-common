@@ -132,11 +132,9 @@ BOARD_SEPOLICY_UNION += \
     file_contexts \
     admsrv.te \
     bluetooth.te \
-    bootanim.te \
     init.te \
     init_shell.te \
     isolated_app.te \
-    healthd.te \
     mediaserver.te \
     platform_app.te \
     radio.te \
