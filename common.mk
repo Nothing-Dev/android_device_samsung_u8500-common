@@ -175,6 +175,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     librs_jni
 
+# Libstport
+RODUCT_PACKAGES += \
+    libstlport
+
 # Disable error Checking
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.kernel.android.checkjni=0 \
