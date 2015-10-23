@@ -113,7 +113,7 @@ BOARD_LPM_BOOT_ARGUMENT_NAME := lpm_boot
 BOARD_LPM_BOOT_ARGUMENT_VALUE := 1
 
 # Recovery
-#BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/u8500-common/recovery/graphics.c
+BOARD_CUSTOM_GRAPHICS := ../../../device/samsung/u8500-common/recovery/graphics.cpp
 BOARD_UMS_LUNFILE := "/sys/devices/platform/musb-ux500.0/musb-hdrc/gadget/lun0/file"
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/samsung/u8500-common/recovery/recovery_keys.c
 BOARD_USES_MMCUTILS := true
@@ -121,7 +121,7 @@ BOARD_HAS_NO_MISC_PARTITION := true
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_SUPPRESS_EMMC_WIPE := true
 BOARD_RECOVERY_SWIPE := true
-RECOVERY_VARIANT := twrp
+#RECOVERY_VARIANT := twrp
 
 # SELinux
 #BOARD_SEPOLICY_DIRS += device/samsung/u8500-common/sepolicy
