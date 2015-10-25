@@ -182,8 +182,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     dalvik.vm.checkjni=false
 
 # SELinux
-#PRODUCT_PROPERTY_OVERRIDES += \
-#    ro.boot.selinux=permissive
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.boot.selinux=disabled
 
 # Storage switch
  PRODUCT_PROPERTY_OVERRIDES += \
