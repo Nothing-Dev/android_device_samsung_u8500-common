@@ -183,7 +183,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # SELinux
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.boot.selinux=permissive
+    ro.boot.selinux=disabled
 
 # Storage switch
  PRODUCT_PROPERTY_OVERRIDES += \
